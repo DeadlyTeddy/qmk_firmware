@@ -65,6 +65,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #define I2C1_SDA_PIN B9
  * 
  * Note: Cannot use A15/B7 as they are used for USART split communication
+ * Pin selection based on Bonsai C-4 pinout:
+ * https://docs.google.com/spreadsheets/d/1FY-Vt8GbN7uX89lh9176jPXvGJELREzGpuhMts9ds38/edit
  */
 
 

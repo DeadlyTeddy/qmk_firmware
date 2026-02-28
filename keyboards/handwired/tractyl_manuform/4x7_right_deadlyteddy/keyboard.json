@@ -3,6 +3,7 @@
     "url": "",
     "maintainer": "deadlyTeddy",
     "usb": {
+        "vid": "0x44DD",
         "pid": "0x3536",
         "device_version": "0.0.1"
     },
@@ -11,7 +12,7 @@
     "split": {
         "enabled": true,
         "transport": {
-            "protocol": "i2c"
+            "protocol": "serial"
         }
     },
     "layouts": {

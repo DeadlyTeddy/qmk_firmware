@@ -24,13 +24,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 // wiring of each half
-#define MATRIX_COL_PINS \
-    { A6, A5, A1, B13, B14, B15, B1 }
-#define MATRIX_ROW_PINS \
-    { B8, A3, B10, A8, B0 }
+#define MATRIX_COL_PINS { A6, A5, A1, B13, B14, B15, B1 }
+#define MATRIX_ROW_PINS { B8, A3, B10, A8, B0 }
+#define DIODE_DIRECTION ROW2COL
 
-
-#define DIODE_DIRECTION COL2ROW
+#define DEBUG_MATRIX_SCAN_RATE
+#define DEBUG_ENABLE
+#define DEBUG_MATRIX
 
 
 // WS2812 RGB LED strip input and number of LEDs
@@ -45,13 +45,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //define AUDIO_PIN       C6
 
 
-/* I2C configuration for split keyboard */
-#define I2C_DRIVER I2CD1
-#define I2C1_SCL_PIN A15
-#define I2C1_SDA_PIN B7
+/* USART Full-Duplex configuration for split keyboard */
+#define SERIAL_USART_FULL_DUPLEX
+#define SERIAL_USART_TX_PIN A15
+#define SERIAL_USART_RX_PIN B7
+#define SERIAL_USART_TX_PAL_MODE 7
+#define SERIAL_USART_RX_PAL_MODE 7
 
-// #define MASTER_LEFT
-#define EE_HANDS
+#define MASTER_LEFT
+// #define EE_HANDS
 
 
 /* SPI configuration for PMW3389 */

@@ -56,6 +56,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // #define EE_HANDS
 
 
+/* OLED Configuration - DISABLED
+ * To re-enable OLED, physically rewire to B6 (SCL) and B9 (SDA)
+ * Then uncomment these lines and set OLED_ENABLE = yes in rules.mk:
+ * 
+ * #define I2C_DRIVER I2CD1
+ * #define I2C1_SCL_PIN B6
+ * #define I2C1_SDA_PIN B9
+ * 
+ * Note: Cannot use A15/B7 as they are used for USART split communication
+ */
+
+
 /* SPI configuration for PMW3389 */
 #define SPI_DRIVER SPID1
 #define SPI_SCK_PIN B3

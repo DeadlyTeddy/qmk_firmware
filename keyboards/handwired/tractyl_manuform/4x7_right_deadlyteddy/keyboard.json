@@ -77,9 +77,9 @@
                 {"label":"L43", "x":8, "y":6, "matrix": [4, 3]},
                 {"label":"L44", "x":7, "y":5, "matrix": [4, 4]},
                 {"label":"L45", "x":8, "y":5, "matrix": [4, 5]},
+                {"label":"R41", "x":11, "y":5, "matrix": [9, 1]},
                 {"label":"R42", "x":10, "y":6, "matrix": [9, 2]},
-                {"label":"R43", "x":11, "y":6, "matrix": [9, 3]},
-                {"label":"R41", "x":11, "y":5, "matrix": [9, 1]}
+                {"label":"R43", "x":11, "y":6, "matrix": [9, 3]}
             ]
         }
     }

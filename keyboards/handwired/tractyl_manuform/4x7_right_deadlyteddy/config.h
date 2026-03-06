@@ -28,6 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MATRIX_ROW_PINS { B8, A3, B10, A8, B0 }
 #define DIODE_DIRECTION ROW2COL
 
+#define COMBO_MUST_HOLD_PER_COMBO
+#define TAPPING_TERM 150
+
 #define DEBUG_MATRIX_SCAN_RATE
 #define DEBUG_ENABLE
 #define DEBUG_MATRIX

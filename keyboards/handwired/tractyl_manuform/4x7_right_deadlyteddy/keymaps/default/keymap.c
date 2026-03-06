@@ -66,9 +66,6 @@ enum custom_keycodes {
     TH_MINS_ENT = SAFE_RANGE,
     TH_LCLK_RCLK,
     TH_LOCK_CAD,
-    TH_M_END,
-    TH_G_HOME,
-    DT_LSFT_SPC,
 };
 
 typedef struct {
@@ -78,24 +75,14 @@ typedef struct {
     bool held;
 } tap_hold_t;
 
-typedef struct {
-    uint16_t keycode;
-    uint16_t timer;
-    uint8_t tap_count;
-} double_tap_t;
-
 static tap_hold_t tap_holds[] = {
     [TH_MINS_ENT - SAFE_RANGE]   = {KC_MINS, KC_ENT,  0, false},
     [TH_LCLK_RCLK - SAFE_RANGE]  = {MS_BTN1, MS_BTN2, 0, false},
     [TH_LOCK_CAD - SAFE_RANGE]   = {LALT(KC_L), LCTL(LALT(KC_DEL)), 0, false},
-    [TH_M_END - SAFE_RANGE]      = {KC_M, KC_END, 0, false},
-    [TH_G_HOME - SAFE_RANGE]     = {KC_G, KC_HOME, 0, false},
 };
 
-static double_tap_t double_tap_lsft = {DT_LSFT_SPC, 0, 0};
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (keycode >= TH_MINS_ENT && keycode <= TH_G_HOME) {
+    if (keycode >= TH_MINS_ENT && keycode <= TH_LOCK_CAD) {
         tap_hold_t *th = &tap_holds[keycode - SAFE_RANGE];
         if (record->event.pressed) {
             th->timer = timer_read();
@@ -111,24 +98,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         return false;
     }
-
-    // Double-tap shift for space
-    if (keycode == KC_LSFT) {
-        if (record->event.pressed) {
-            if (double_tap_lsft.tap_count == 0) {
-                double_tap_lsft.timer = timer_read();
-            }
-            double_tap_lsft.tap_count++;
-
-            if (double_tap_lsft.tap_count == 2) {
-                tap_code(KC_SPC);
-                double_tap_lsft.tap_count = 0;
-                return false;
-            }
-        }
-        return true;
-    }
-
     return true;
 }
 
@@ -145,7 +114,7 @@ void matrix_scan_user(void) {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_COLEMAK_DH] = LAYOUT_4x7_right(
     KC_ESC ,KC_DEL , KC_Q  , KC_W  , KC_F  , KC_P  , KC_B  ,                                 KC_J  , KC_L  , KC_U  , KC_Y  ,KC_SCLN,KC_MINS,TH_LOCK_CAD,
-    KC_F18 ,KC_BSPC, HOME_A, HOME_R, HOME_S, HOME_T, TH_G_HOME,                              TH_M_END, HOME_N, KC_E  , KC_I  , KC_O  ,KC_QUOT,KC_F22 ,
+    KC_F18 ,KC_BSPC, HOME_A, HOME_R, HOME_S, HOME_T, KC_G  ,                                 KC_M  , HOME_N, KC_E  , KC_I  , KC_O  ,KC_QUOT,KC_F22 ,
     KC_F19 ,KC_LCTL, KC_Z  , KC_X  , KC_C  , HOME_D, KC_V  ,                                 KC_K  , KC_H  ,KC_COMM, KC_DOT,HOME_SLSH,KC_GRV,KC_F23 ,
     KC_F20 ,KC_F21 ,KC_LWIN,KC_LALT,CAPSWRD,                                                                KC_MINS, KC_PLUS,KC_BSLS,DF(_QWERTY),KC_F24 ,
                                             KC_LSFT,KC_LCTL,                                        KC_SPC,
@@ -175,10 +144,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_ARROWS] = LAYOUT_4x7_right( // Hold A
     XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,                                XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,
-    XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,                                XXXXXXX,KC_LEFT,KC_DOWN, KC_UP ,KC_RGHT,XXXXXXX,XXXXXXX,
+    XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,                                KC_HOME,KC_LEFT,KC_DOWN, KC_UP ,KC_RGHT,KC_END ,XXXXXXX,
     XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,                                XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,
     XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,                                                                XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,
-                                            XXXXXXX,XXXXXXX,                                XXXXXXX,
+                                            KC_LSFT,KC_LCTL,                                XXXXXXX,
                                                     XXXXXXX,XXXXXXX,                XXXXXXX,
                                                     XXXXXXX,XXXXXXX,        XXXXXXX,XXXXXXX
   ),

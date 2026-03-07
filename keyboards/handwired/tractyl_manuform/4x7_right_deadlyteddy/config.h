@@ -38,11 +38,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // WS2812 RGB LED strip input and number of LEDs
 #define WS2812_DI_PIN A10
-#define RGBLED_NUM 62
-#define RGBLIGHT_SPLIT
-#define RGBLED_SPLIT \
-    { 32, 30 }
-#define RGBLIGHT_LIMIT_VAL 80
+#define RGB_MATRIX_LED_COUNT 62
+#define RGB_MATRIX_SPLIT { 32, 30 }
+#define RGB_MATRIX_MAXIMUM_BRIGHTNESS 80
 
 
 //define AUDIO_PIN       C6

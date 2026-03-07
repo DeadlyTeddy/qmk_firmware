@@ -9,6 +9,7 @@ COMMAND_ENABLE = yes        # Commands for debug and configuration
 NKRO_ENABLE = yes           # Enable N-Key Rollover
 BACKLIGHT_ENABLE = no       # Enable keyboard backlight functionality
 RGBLIGHT_ENABLE = no        # Enable keyboard RGB underglow
+RGB_MATRIX_ENABLE = yes     # Enable per-key RGB matrix
 AUDIO_ENABLE = no           # Audio output
 SWAP_HANDS_ENABLE = no      # Temporarily disabled
 OLED_ENABLE = no            # Temporarily disabled to test split communication

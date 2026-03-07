@@ -267,6 +267,46 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 };
 
+// RGB Matrix LED mapping
+// TODO: Fill in LED indices based on your wiring order (serpentine)
+// Left half: LEDs 0-31, Right half: LEDs 32-61
+// Use NO_LED for matrix positions with no physical key/LED
+#ifdef RGB_MATRIX_ENABLE
+led_config_t g_led_config = { {
+    // matrix_co: [row][col] → LED index
+    // Left half (rows 0-4)
+    { 0,      1,      2,      3,      4,      5,      6      },  // row 0 (L→R)
+    { 13,     12,     11,     10,     9,      8,      7      },  // row 1 (R→L serpentine)
+    { 14,     15,     16,     17,     18,     19,     20     },  // row 2 (L→R)
+    { 25,     24,     23,     22,     21,     NO_LED, NO_LED },  // row 3 (R→L)
+    { 26,     27,     28,     29,     30,     31,     NO_LED },  // row 4 thumb (L→R)
+    // Right half (rows 5-9)
+    { 32,     33,     34,     35,     36,     37,     38     },  // row 5 (L→R)
+    { 45,     44,     43,     42,     41,     40,     39     },  // row 6 (R→L serpentine)
+    { 46,     47,     48,     49,     50,     51,     52     },  // row 7 (L→R)
+    { 57,     56,     55,     54,     53,     NO_LED, NO_LED },  // row 8 (R→L)
+    { 58,     59,     60,     61,     NO_LED, NO_LED, NO_LED },  // row 9 thumb (L→R)
+}, {
+    // point: physical {x, y} position of each LED (0-224 x, 0-64 y)
+    // Left half (LEDs 0-31) — TODO: adjust positions
+    {0,0},  {16,0},  {32,0},  {48,0},  {64,0},  {80,0},  {96,0},   // row 0
+    {96,16}, {80,16}, {64,16}, {48,16}, {32,16}, {16,16}, {0,16},   // row 1
+    {0,32},  {16,32}, {32,32}, {48,32}, {64,32}, {80,32}, {96,32},  // row 2
+    {80,48}, {64,48}, {48,48}, {32,48}, {16,48},                    // row 3
+    {16,64}, {32,64}, {48,64}, {64,64}, {80,64}, {96,64},           // row 4 thumb
+    // Right half (LEDs 32-61) — TODO: adjust positions
+    {128,0}, {144,0}, {160,0}, {176,0}, {192,0}, {208,0}, {224,0},  // row 5
+    {224,16},{208,16},{192,16},{176,16},{160,16},{144,16},{128,16},   // row 6
+    {128,32},{144,32},{160,32},{176,32},{192,32},{208,32},{224,32},   // row 7
+    {208,48},{192,48},{176,48},{160,48},{144,48},                    // row 8
+    {144,64},{160,64},{176,64},{192,64},                             // row 9 thumb
+}, {
+    // flags: 4 = LED_FLAG_KEYLIGHT for all per-key LEDs
+    4,4,4,4,4,4,4, 4,4,4,4,4,4,4, 4,4,4,4,4,4,4, 4,4,4,4,4, 4,4,4,4,4,4,  // left 0-31
+    4,4,4,4,4,4,4, 4,4,4,4,4,4,4, 4,4,4,4,4,4,4, 4,4,4,4,4, 4,4,4,4,       // right 32-61
+} };
+#endif
+
 // Matrix debugging - uncomment to see raw matrix positions
 // void matrix_scan_user(void) {
 //     static uint32_t last_print = 0;

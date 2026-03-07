@@ -18,30 +18,32 @@
 
 enum custom_layers {
     _COLEMAK_DH,
-    _QWERTY,
-    _LOWER,
+    _NUMS,
     _ARROWS,
     _SYMBOLS,
     _PUNCT,
     _CLICK,
     _MEDIA,
+    _QWERTY,
 };
 
 // Home row layer taps
 #define HOME_A LT(_ARROWS, KC_A)
 #define HOME_R LT(_PUNCT, KC_R)
-#define HOME_S LT(_LOWER, KC_S)
+#define HOME_S LT(_NUMS, KC_S)
 #define HOME_T LT(_SYMBOLS, KC_T)
 #define HOME_D LT(_CLICK, KC_D)
 
 const uint16_t PROGMEM combo_f5[] = {HOME_A, HOME_R, HOME_S, HOME_T, COMBO_END};
 const uint16_t PROGMEM combo_gui_ctl_0[] = {KC_LSFT, HOME_S, HOME_T, COMBO_END};
 const uint16_t PROGMEM combo_boot[] = {KC_W, KC_F, KC_P, KC_B, COMBO_END};
+const uint16_t PROGMEM combo_esc[] = {KC_W, KC_F, COMBO_END};
 
 enum combo_names {
     COMBO_F5,
     COMBO_GUI_CTL_0,
     COMBO_BOOT,
+    COMBO_ESC,
     COMBO_LENGTH
 };
 uint16_t COMBO_LEN = COMBO_LENGTH;
@@ -50,6 +52,7 @@ combo_t key_combos[] = {
     [COMBO_F5]        = COMBO(combo_f5, KC_F5),
     [COMBO_GUI_CTL_0] = COMBO(combo_gui_ctl_0, LGUI(LCTL(KC_0))),
     [COMBO_BOOT]      = COMBO(combo_boot, QK_BOOT),
+    [COMBO_ESC]       = COMBO(combo_esc, KC_ESC),
 };
 
 bool get_combo_must_hold(uint16_t index, combo_t *combo) {
@@ -87,6 +90,26 @@ static struct {
     bool held;
 } z_state = {0, false};
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // Shift + number on _NUMS = F-key
+    if (record->event.pressed && IS_LAYER_ON(_NUMS) && (get_mods() & MOD_MASK_SHIFT)) {
+        uint16_t fkey = 0;
+        switch (keycode) {
+            case KC_1: fkey = KC_F1;  break; case KC_2: fkey = KC_F2;  break;
+            case KC_3: fkey = KC_F3;  break; case KC_4: fkey = KC_F4;  break;
+            case KC_5: fkey = KC_F5;  break; case KC_6: fkey = KC_F6;  break;
+            case KC_7: fkey = KC_F7;  break; case KC_8: fkey = KC_F8;  break;
+            case KC_9: fkey = KC_F9;  break; case KC_0: fkey = KC_F10; break;
+            case KC_MINS: fkey = KC_F11; break; case KC_EQL: fkey = KC_F12; break;
+        }
+        if (fkey) {
+            uint8_t mods = get_mods();
+            del_mods(MOD_MASK_SHIFT);
+            tap_code(fkey);
+            set_mods(mods);
+            return false;
+        }
+    }
+
     if (keycode >= TH_MINS_ENT && keycode <= TH_LOCK_CAD) {
         tap_hold_t *th = &tap_holds[keycode - SAFE_RANGE];
         if (record->event.pressed) {
@@ -105,10 +128,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     if (keycode == Z_ARROWS_SHIFTCTRL) {
-        // If external modifiers are active, let the key pass through normally
         uint8_t mods = get_mods() | get_oneshot_mods() | get_weak_mods();
         if (mods) {
-            return true; // Let QMK handle it normally with modifiers
+            if (record->event.pressed) {
+                register_code(KC_Z);
+            } else {
+                unregister_code(KC_Z);
+            }
+            return false;
         }
 
         if (record->event.pressed) {
@@ -128,6 +155,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     return true;
+}
+
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case HOME_A:
+        case HOME_S:
+            return 200;
+        default:
+            return TAPPING_TERM;
+    }
 }
 
 void matrix_scan_user(void) {
@@ -152,7 +189,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_ESC ,KC_DEL , KC_Q  , KC_W  , KC_F  , KC_P  , KC_B  ,                                 KC_J  , KC_L  , KC_U  , KC_Y  ,KC_SCLN,KC_MINS,TH_LOCK_CAD,
     KC_F18 ,KC_BSPC, HOME_A, HOME_R, HOME_S, HOME_T, KC_G  ,                                 KC_M  , HOME_N, KC_E  , KC_I  , KC_O  ,KC_QUOT,KC_F22 ,
     KC_F19 ,KC_LCTL, Z_ARROWS_SHIFTCTRL, KC_X  , KC_C  , HOME_D, KC_V  ,                                 KC_K  , KC_H  ,KC_COMM, KC_DOT,HOME_SLSH,KC_GRV,KC_F23 ,
-    KC_F20 ,KC_F21 ,KC_LWIN,KC_LALT,CAPSWRD,                                                                KC_MINS, KC_PLUS,KC_BSLS,DF(_QWERTY),KC_F24 ,
+    KC_F20 ,KC_F21 ,KC_LWIN,KC_LALT,CAPSWRD,                                                                KC_MINS, KC_EQL ,KC_BSLS,DF(_QWERTY),KC_F24 ,
                                             KC_LSFT,KC_LCTL,                                        KC_SPC,
                                                     KC_LALT, KC_TAB,                   TH_MINS_ENT,
                                                     KC_BSPC,KC_LWIN,          KC_F17, KC_ENT
@@ -162,15 +199,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_ESC ,KC_DEL , KC_Q  , KC_W  , KC_E  , KC_R  , KC_T  ,                                 KC_Y  , KC_U  , KC_I  , KC_O  , KC_P  ,KC_MINS,TH_LOCK_CAD,
     KC_F18 ,KC_BSPC, KC_A  , KC_S  , KC_D  , KC_F  , KC_G  ,                                 KC_H  , KC_J  , KC_K  , KC_L  ,KC_SCLN,KC_QUOT,KC_F22 ,
     KC_F19 ,KC_LCTL, KC_Z  , KC_X  , KC_C  , KC_V  , KC_B  ,                                 KC_N  , KC_M  ,KC_COMM, KC_DOT,KC_SLSH, KC_GRV,KC_F23 ,
-    KC_F20 ,KC_F21 ,KC_LWIN,KC_LALT,CAPSWRD,                                                                KC_MINS, KC_PLUS,KC_BSLS,DF(_COLEMAK_DH),KC_F24 ,
+    KC_F20 ,KC_F21 ,KC_LWIN,KC_LALT, KC_M  ,                                                                KC_MINS, KC_EQL ,KC_BSLS,DF(_COLEMAK_DH),KC_F24 ,
                                             KC_SPC ,KC_LCTL,                                        KC_SPC,
                                                     KC_LALT, KC_TAB,                   TH_MINS_ENT,
                                                     KC_BSPC,KC_LWIN,          TH_LCLK_RCLK, KC_ENT
   ),
 
-  [_LOWER] = LAYOUT_4x7_right( // Hold S
+  [_NUMS] = LAYOUT_4x7_right( // Hold S
     _______,_______,_______,_______,_______,_______,KC_LBRC,                                XXXXXXX, KC_7  , KC_8  , KC_9  ,KC_SLSH,XXXXXXX,XXXXXXX,
-    _______,_______,KC_HOME,KC_PGUP,KC_PGDN,KC_END ,KC_LPRN,                                XXXXXXX, KC_4  , KC_5  , KC_6  ,KC_ASTR,XXXXXXX,XXXXXXX,
+    _______,_______,KC_HOME,_______,KC_PGDN,KC_END ,KC_LPRN,                                XXXXXXX, KC_4  , KC_5  , KC_6  ,KC_ASTR,XXXXXXX,XXXXXXX,
     _______,_______,_______,_______,_______,_______,_______,                                XXXXXXX, KC_1  , KC_2  , KC_3  ,KC_EQL ,XXXXXXX,XXXXXXX,
     _______,_______,_______,_______,KC_PSCR,                                                                KC_MINS,KC_PLUS,XXXXXXX,XXXXXXX,XXXXXXX,
                                             _______,_______,                                KC_0 ,
@@ -179,9 +216,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 
   [_ARROWS] = LAYOUT_4x7_right( // Hold A
-    XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,                                XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,
+    XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,                                XXXXXXX,XXXXXXX,KC_PGDN,KC_PGUP,XXXXXXX,XXXXXXX,XXXXXXX,
     XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,                                KC_HOME,KC_LEFT,KC_DOWN, KC_UP ,KC_RGHT,KC_END ,XXXXXXX,
-    XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,                                XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,
+    XXXXXXX,XXXXXXX,_______,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,                                XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,
     XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,                                                                XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,XXXXXXX,
                                             KC_LSFT,KC_LCTL,                                KC_LSFT,
                                                     XXXXXXX,XXXXXXX,                KC_LCTL,

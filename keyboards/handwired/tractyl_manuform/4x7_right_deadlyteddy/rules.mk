@@ -10,15 +10,19 @@ NKRO_ENABLE = yes           # Enable N-Key Rollover
 BACKLIGHT_ENABLE = no       # Enable keyboard backlight functionality
 RGBLIGHT_ENABLE = no        # Enable keyboard RGB underglow
 RGB_MATRIX_ENABLE = yes     # Enable per-key RGB matrix
+RGB_MATRIX_DRIVER = ws2812  # Use WS2812 driver for RGB matrix
+WS2812_DRIVER = pwm         # Use PWM+DMA for reliable WS2812 timing on STM32
 AUDIO_ENABLE = no           # Audio output
 SWAP_HANDS_ENABLE = no      # Temporarily disabled
-OLED_ENABLE = no            # Temporarily disabled to test split communication
+OLED_ENABLE = yes            # OLED display
 
 POINTING_DEVICE_ENABLE = yes
 POINTING_DEVICE_DRIVER = pmw3389
 MOUSE_SHARED_EP = yes
 
 COMBO_ENABLE = yes
+
+WPM_ENABLE = yes
 
 SERIAL_DRIVER = usart
 

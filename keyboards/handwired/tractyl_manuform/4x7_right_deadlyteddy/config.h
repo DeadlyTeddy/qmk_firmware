@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIODE_DIRECTION ROW2COL
 
 #define COMBO_MUST_HOLD_PER_COMBO
-#define TAPPING_TERM 150
+#define TAPPING_TERM 300
 
 #define DEBUG_MATRIX_SCAN_RATE
 #define DEBUG_ENABLE
@@ -38,12 +38,71 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // WS2812 RGB LED strip input and number of LEDs
 #define WS2812_DI_PIN A10
+#define WS2812_PWM_DRIVER PWMD1
+#define WS2812_PWM_CHANNEL 3
+#define WS2812_PWM_PAL_MODE 1
+#define WS2812_DMA_STREAM STM32_DMA2_STREAM5
+#define WS2812_DMA_CHANNEL 6
 #define RGB_MATRIX_LED_COUNT 62
 #define RGB_MATRIX_SPLIT { 32, 30 }
-#define RGB_MATRIX_MAXIMUM_BRIGHTNESS 80
+#define RGB_MATRIX_MAXIMUM_BRIGHTNESS 120
 
+// Default color: electric blue
+#define RGB_MATRIX_DEFAULT_HUE 151
+#define RGB_MATRIX_DEFAULT_SAT 255
+#define RGB_MATRIX_DEFAULT_VAL 120
+#define RGB_MATRIX_DEFAULT_MODE 32
+#define RGB_MATRIX_HUE_STEP 4
+#define RGB_MATRIX_VAL_STEP 8
 
-//define AUDIO_PIN       C6
+// Effects - All RGB Matrix effects enabled
+// Static/Solid Effects
+#define ENABLE_RGB_MATRIX_ALPHAS_MODS
+#define ENABLE_RGB_MATRIX_GRADIENT_UP_DOWN
+#define ENABLE_RGB_MATRIX_GRADIENT_LEFT_RIGHT
+#define ENABLE_RGB_MATRIX_BREATHING
+#define ENABLE_RGB_MATRIX_BAND_SAT
+#define ENABLE_RGB_MATRIX_BAND_VAL
+#define ENABLE_RGB_MATRIX_BAND_PINWHEEL_SAT
+#define ENABLE_RGB_MATRIX_BAND_PINWHEEL_VAL
+#define ENABLE_RGB_MATRIX_BAND_SPIRAL_SAT
+#define ENABLE_RGB_MATRIX_BAND_SPIRAL_VAL
+
+// Animated Effects
+#define ENABLE_RGB_MATRIX_CYCLE_ALL
+#define ENABLE_RGB_MATRIX_CYCLE_LEFT_RIGHT
+#define ENABLE_RGB_MATRIX_CYCLE_UP_DOWN
+#define ENABLE_RGB_MATRIX_CYCLE_OUT_IN
+#define ENABLE_RGB_MATRIX_CYCLE_OUT_IN_DUAL
+#define ENABLE_RGB_MATRIX_RAINBOW_MOVING_CHEVRON
+#define ENABLE_RGB_MATRIX_CYCLE_PINWHEEL
+#define ENABLE_RGB_MATRIX_CYCLE_SPIRAL
+#define ENABLE_RGB_MATRIX_DUAL_BEACON
+#define ENABLE_RGB_MATRIX_RAINBOW_BEACON
+#define ENABLE_RGB_MATRIX_RAINBOW_PINWHEELS
+#define ENABLE_RGB_MATRIX_RAINDROPS
+#define ENABLE_RGB_MATRIX_JELLYBEAN_RAINDROPS
+#define ENABLE_RGB_MATRIX_HUE_BREATHING
+#define ENABLE_RGB_MATRIX_HUE_PENDULUM
+#define ENABLE_RGB_MATRIX_HUE_WAVE
+#define ENABLE_RGB_MATRIX_PIXEL_RAIN
+#define ENABLE_RGB_MATRIX_PIXEL_FLOW
+
+// Reactive Effects (respond to keypresses)
+#define ENABLE_RGB_MATRIX_TYPING_HEATMAP
+#define ENABLE_RGB_MATRIX_DIGITAL_RAIN
+#define ENABLE_RGB_MATRIX_SOLID_REACTIVE_SIMPLE
+#define ENABLE_RGB_MATRIX_SOLID_REACTIVE
+#define ENABLE_RGB_MATRIX_SOLID_REACTIVE_WIDE
+#define ENABLE_RGB_MATRIX_SOLID_REACTIVE_MULTIWIDE
+#define ENABLE_RGB_MATRIX_SOLID_REACTIVE_CROSS
+#define ENABLE_RGB_MATRIX_SOLID_REACTIVE_MULTICROSS
+#define ENABLE_RGB_MATRIX_SOLID_REACTIVE_NEXUS
+#define ENABLE_RGB_MATRIX_SOLID_REACTIVE_MULTINEXUS
+#define ENABLE_RGB_MATRIX_SPLASH
+#define ENABLE_RGB_MATRIX_MULTISPLASH
+#define ENABLE_RGB_MATRIX_SOLID_SPLASH
+#define ENABLE_RGB_MATRIX_SOLID_MULTISPLASH
 
 
 /* USART Full-Duplex configuration for split keyboard */
@@ -56,19 +115,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MASTER_LEFT
 // #define EE_HANDS
 
+#define SPLIT_WPM_ENABLE
+#define SPLIT_OLED_ENABLE
+#define SPLIT_LAYER_STATE_ENABLE
+#define SPLIT_TRANSACTION_IDS_USER OLED_SYNC_ID
 
-/* OLED Configuration - DISABLED
- * To re-enable OLED, physically rewire to B6 (SCL) and B9 (SDA)
- * Then uncomment these lines and set OLED_ENABLE = yes in rules.mk:
- * 
- * #define I2C_DRIVER I2CD1
- * #define I2C1_SCL_PIN B6
- * #define I2C1_SDA_PIN B9
- * 
- * Note: Cannot use A15/B7 as they are used for USART split communication
- * Pin selection based on Bonsai C-4 pinout:
- * https://docs.google.com/spreadsheets/d/1FY-Vt8GbN7uX89lh9176jPXvGJELREzGpuhMts9ds38/edit
- */
+
+/* OLED Configuration */
+#define I2C_DRIVER I2CD1
+#define I2C1_SCL_PIN B6
+#define I2C1_SDA_PIN B9
 
 
 /* SPI configuration for PMW3389 */
@@ -89,6 +145,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define OLED_DISPLAY_128X32
 #define OLED_BRIGHTNESS 200
+#define OLED_TIMEOUT 600000
+#define OLED_UPDATE_INTERVAL 16
+
+#define RGB_MATRIX_TIMEOUT 600000
 
 
 #define CHARYBDIS_MINIMUM_DEFAULT_DPI 1200

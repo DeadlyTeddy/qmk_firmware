@@ -29,12 +29,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIODE_DIRECTION ROW2COL
 
 #define COMBO_MUST_HOLD_PER_COMBO
-#define TAPPING_TERM 300
+#define TAPPING_TERM 225
 
 #define DEBUG_MATRIX_SCAN_RATE
 #define DEBUG_ENABLE
 #define DEBUG_MATRIX
 
+
+// Add wakeup routine so the keyboard will wake when plugged into dock
+#define USB_SUSPEND_WAKEUP_DELAY 1000
+#define NO_USB_STARTUP_CHECK
 
 // WS2812 RGB LED strip input and number of LEDs
 #define WS2812_DI_PIN A10
@@ -46,6 +50,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_MATRIX_LED_COUNT 62
 #define RGB_MATRIX_SPLIT { 32, 30 }
 #define RGB_MATRIX_MAXIMUM_BRIGHTNESS 120
+#define RGB_MATRIX_TIMEOUT 600000
 
 // Default color: electric blue
 #define RGB_MATRIX_DEFAULT_HUE 151
@@ -111,10 +116,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SERIAL_USART_RX_PIN B7
 #define SERIAL_USART_TX_PAL_MODE 7
 #define SERIAL_USART_RX_PAL_MODE 7
-
 #define MASTER_LEFT
-// #define EE_HANDS
-
 #define SPLIT_WPM_ENABLE
 #define SPLIT_OLED_ENABLE
 #define SPLIT_LAYER_STATE_ENABLE
@@ -125,6 +127,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define I2C_DRIVER I2CD1
 #define I2C1_SCL_PIN B6
 #define I2C1_SDA_PIN B9
+#define OLED_DISPLAY_128X32
+#define OLED_BRIGHTNESS 200
+#define OLED_TIMEOUT 600000
+#define OLED_UPDATE_INTERVAL 16
 
 
 /* SPI configuration for PMW3389 */
@@ -139,36 +145,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* PMW33XX Settings */
 #define PMW33XX_CS_PIN A7
-#define PMW33XX_LIFTOFF_DISTANCE 0b0111
-
-
-
-#define OLED_DISPLAY_128X32
-#define OLED_BRIGHTNESS 200
-#define OLED_TIMEOUT 600000
-#define OLED_UPDATE_INTERVAL 16
-
-#define RGB_MATRIX_TIMEOUT 600000
-
-
-#define CHARYBDIS_MINIMUM_DEFAULT_DPI 1200
+#define PMW33XX_LIFTOFF_DISTANCE 0x03
+#define CHARYBDIS_MINIMUM_DEFAULT_DPI 3000
 #define CHARYBDIS_DEFAULT_DPI_CONFIG_STEP 200
 #define CHARYBDIS_MINIMUM_SNIPING_DPI 400
 #define CHARYBDIS_SNIPING_DPI_CONFIG_STEP 200
-
+#define POINTING_DEVICE_ROTATION_270
+// #define ROTATIONAL_TRANSFORM_ANGLE 17 // fine tuning is done in keymap.c's TRACKBALL_ANGLE variable
 #define POINTING_DEVICE_RIGHT
 
 
-// #define BOOTMAGIC_EEPROM_ROW          1
-// #define BOOTMAGIC_EEPROM_COLUMN       0
-// #define BOOTMAGIC_EEPROM_ROW_RIGHT    7
-// #define BOOTMAGIC_EEPROM_COLUMN_RIGHT 5
-
-
-
-
 // #define DEBOUNCE 15
-
 
 // #define LAYER_MAP_REMAPPING
 // #define LAYER_MAP_COLS 17

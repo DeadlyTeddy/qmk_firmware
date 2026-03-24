@@ -15,6 +15,7 @@
  */
 
 #include QMK_KEYBOARD_H
+#include <math.h>
 
 enum custom_layers {
     _COLEMAK_DH,
@@ -39,7 +40,7 @@ enum custom_layers {
 const uint16_t PROGMEM combo_f5[] = {HOME_A, HOME_R, HOME_S, HOME_T, COMBO_END};
 const uint16_t PROGMEM combo_gui_ctl_0[] = {KC_LSFT, HOME_S, HOME_T, COMBO_END};
 const uint16_t PROGMEM combo_boot[] = {KC_W, KC_F, KC_P, KC_B, COMBO_END};
-const uint16_t PROGMEM combo_esc[] = {KC_W, KC_F, COMBO_END};
+const uint16_t PROGMEM combo_esc[] = {HOME_R, HOME_S, COMBO_END};
 const uint16_t PROGMEM combo_adhd[] = {KC_H, KC_COMM, KC_DOT, HOME_SLSH, COMBO_END};
 
 enum combo_names {
@@ -105,7 +106,7 @@ typedef struct {
 static tap_hold_t tap_holds[] = {
     [TH_MINS_ENT - SAFE_RANGE]   = {KC_MINS, KC_ENT,  0, false},
     [TH_LCLK_RCLK - SAFE_RANGE]  = {MS_BTN1, MS_BTN2, 0, false},
-    [TH_LOCK_CAD - SAFE_RANGE]   = {LALT(KC_L), LCTL(LALT(KC_DEL)), 0, false},
+    [TH_LOCK_CAD - SAFE_RANGE]   = {LWIN(KC_L), LCTL(LALT(KC_DEL)), 0, false},
 };
 
 static struct {
@@ -238,6 +239,7 @@ void matrix_scan_user(void) {
 
     if (z_state.timer && !z_state.held && timer_elapsed(z_state.timer) > TAPPING_TERM) {
         z_state.held = true;
+        unregister_code(KC_Z); //cancel the Z that was registered on press
         layer_on(_ARROWS);
         register_code(KC_LSFT);
         register_code(KC_LCTL);
@@ -280,9 +282,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_F18 ,KC_BSPC, HOME_A, HOME_R, HOME_S, HOME_T, KC_G  ,                                 KC_M  , HOME_N, KC_E  , KC_I  , KC_O  ,KC_QUOT,KC_F22 ,
     KC_F19 ,KC_LCTL, Z_ARROWS_SHIFTCTRL, KC_X  , KC_C  , HOME_D, KC_V  ,                                 KC_K  , KC_H  ,KC_COMM, KC_DOT,HOME_SLSH,KC_GRV,KC_F23 ,
     KC_F20 ,KC_F21 ,KC_LWIN,KC_LALT,LCTL(KC_BSPC),                                                                KC_MINS, KC_EQL ,KC_BSLS,TG(_QWERTY),KC_F24 ,
-                                            KC_LSFT,KC_LCTL,                                        KC_SPC,
-                                                    KC_LALT, KC_TAB,                   TH_MINS_ENT,
-                                                    KC_BSPC,KC_LWIN,          KC_F17, KC_ENT
+                                            KC_LSFT,KC_LCTL,                                 KC_SPC,
+                                                    KC_LALT, KC_TAB,                 KC_MINS,
+                                                    SNIPING,KC_ESC ,          KC_F17, KC_ENT
   ),
 
   [_NUMS] = LAYOUT_4x7_right( // Hold S
@@ -290,7 +292,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,_______,KC_BSPC,_______,_______,KC_LSFT,_______,                                _______, KC_4  , KC_5  , KC_6  ,KC_ASTR,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,                                _______, KC_1  , KC_2  , KC_3  ,KC_SLSH,_______,_______,
     _______,_______,_______,_______,_______,                                                                KC_MINS,KC_PLUS,_______,_______,_______,
-                                            LSFT_T(KC_SPC),KC_LCTL,                                KC_0 ,
+                                            LSFT_T(KC_SPC),KC_LCTL,                           KC_0 ,
                                                     KC_LALT,_______,                _______,
                                                     _______,_______,        _______,_______
   ),
@@ -350,7 +352,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_F18 ,KC_BSPC, KC_A  , KC_S  , KC_D  , KC_F  , KC_G  ,                                 KC_H  , KC_J  , KC_K  , KC_L  ,KC_SCLN,KC_QUOT,KC_F22 ,
     KC_F19 ,KC_LSFT, KC_Z  , KC_X  , KC_C  , KC_V  , KC_B  ,                                 KC_N  , KC_M  ,KC_COMM, KC_DOT,KC_SLSH, KC_GRV,KC_F23 ,
     KC_F20 ,KC_F21 ,KC_LWIN,KC_LALT, KC_M  ,                                                                KC_MINS, KC_EQL ,KC_BSLS,TG(_QWERTY),KC_F24 ,
-                                            KC_SPC ,KC_LCTL,                                        KC_SPC,
+                                            KC_SPC ,KC_LCTL,                                 KC_SPC,
                                                     KC_LALT, KC_TAB,                   TH_MINS_ENT,
                                                     KC_BSPC,KC_LWIN,          TH_LCLK_RCLK, KC_ENT
   ),
@@ -443,11 +445,14 @@ static void render_status(void) {
     oled_write("     ", false);
 
     // Keys
-    oled_write_ln("Keys", false);
-    snprintf(buf, sizeof(buf), "  %3lu", (unsigned long)(keypress_count > 999 ? keypress_count / 1000 : keypress_count));
-    oled_write(buf, false);
-    oled_write("-----", false);
-    oled_write("     ", false);
+     oled_write_ln("Keys", false);
+    if (keypress_count > 99999) {
+        snprintf(buf, sizeof(buf), "%4luk", (unsigned long)(keypress_count / 1000));
+    } else {
+        snprintf(buf, sizeof(buf), "%5lu", (unsigned long)keypress_count);
+    }
+    oled_write_ln(buf, false);
+    oled_write_ln("-----", false);
 
     // Mods
     oled_write_ln("Mods", false);
@@ -603,6 +608,18 @@ led_config_t g_led_config = { {
     1,1,1,          // right row 9 thumb (3)
 } };
 #endif
+
+// Trackball mods
+#define TRACKBALL_ANGLE 17 // degrees, positive=CCW, negative=CW
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    float rad = TRACKBALL_ANGLE * M_PI / 180.0f;
+    int16_t x = mouse_report.x;
+    int16_t y = mouse_report.y;
+    mouse_report.x = (x * cosf(rad) - y * sinf(rad)) * 2.5;
+    mouse_report.y = -(x * sinf(rad) + y * cosf(rad));
+    return mouse_report;
+}
 
 // Matrix debugging - uncomment to see raw matrix positions
 // void matrix_scan_user(void) {

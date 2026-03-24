@@ -42,6 +42,10 @@ const uint16_t PROGMEM combo_gui_ctl_0[] = {KC_LSFT, HOME_S, HOME_T, COMBO_END};
 const uint16_t PROGMEM combo_boot[] = {KC_W, KC_F, KC_P, KC_B, COMBO_END};
 const uint16_t PROGMEM combo_esc[] = {HOME_R, HOME_S, COMBO_END};
 const uint16_t PROGMEM combo_adhd[] = {KC_H, KC_COMM, KC_DOT, HOME_SLSH, COMBO_END};
+const uint16_t PROGMEM combo_f23[] = {HOME_N, KC_E, KC_I, COMBO_END};
+const uint16_t PROGMEM combo_luy[] = {KC_L, KC_U, KC_Y, COMBO_END};
+
+static uint16_t luy_timer = 0;
 
 enum combo_names {
     COMBO_F5,
@@ -49,6 +53,8 @@ enum combo_names {
     COMBO_BOOT,
     COMBO_ESC,
     COMBO_ADHD,
+    COMBO_F23,
+    COMBO_LUY,
     COMBO_LENGTH
 };
 uint16_t COMBO_LEN = COMBO_LENGTH;
@@ -59,10 +65,19 @@ combo_t key_combos[] = {
     [COMBO_BOOT]      = COMBO(combo_boot, QK_BOOT),
     [COMBO_ESC]       = COMBO(combo_esc, KC_ESC),
     [COMBO_ADHD]      = COMBO(combo_adhd, LCTL(KC_F17)),
+    [COMBO_F23]       = COMBO(combo_f23, KC_F23),
+    [COMBO_LUY]       = COMBO_ACTION(combo_luy),
 };
 
 bool get_combo_must_hold(uint16_t index, combo_t *combo) {
     return false;
+}
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+    if (combo_index == COMBO_LUY && pressed) {
+        tap_code16(LCTL(LSFT(KC_0)));
+        luy_timer = timer_read();
+    }
 }
 
 // Short aliases
@@ -242,6 +257,11 @@ void matrix_scan_user(void) {
         register_code(KC_LCTL);
     }
 
+    if (luy_timer && timer_elapsed(luy_timer) > 200) {
+        tap_code16(LCTL(LSFT(KC_O)));
+        luy_timer = 0;
+    }
+
     if (ee_clear_timer && timer_elapsed32(ee_clear_timer) > 5000) {
         ee_clear_timer = 0;
         eeconfig_init();
@@ -379,6 +399,7 @@ void keyboard_post_init_user(void) {
 
 
 void suspend_power_down_user(void) {
+    oled_off();
     eeconfig_update_user(keypress_count);
 }
 void housekeeping_task_user(void) {

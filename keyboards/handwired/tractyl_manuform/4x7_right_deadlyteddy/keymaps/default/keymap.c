@@ -188,12 +188,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (record->event.pressed) {
             z_state.timer = timer_read();
             z_state.held = false;
-            register_code(KC_Z);  // Register immediately on press
         } else {
             if (!z_state.held) {
-                unregister_code(KC_Z);  // Just unregister if it was a tap
+                tap_code(KC_Z);
             } else {
-                unregister_code(KC_Z);  // Unregister Z before layer/mods
                 layer_off(_ARROWS);
                 unregister_code(KC_LSFT);
                 unregister_code(KC_LCTL);
@@ -239,7 +237,6 @@ void matrix_scan_user(void) {
 
     if (z_state.timer && !z_state.held && timer_elapsed(z_state.timer) > TAPPING_TERM) {
         z_state.held = true;
-        unregister_code(KC_Z); //cancel the Z that was registered on press
         layer_on(_ARROWS);
         register_code(KC_LSFT);
         register_code(KC_LCTL);

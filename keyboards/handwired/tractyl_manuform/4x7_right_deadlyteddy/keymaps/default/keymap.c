@@ -16,6 +16,7 @@
 
 #include QMK_KEYBOARD_H
 #include <math.h>
+#include "usb_main.h"
 
 enum custom_layers {
     _COLEMAK_DH,
@@ -35,14 +36,14 @@ enum custom_layers {
 #define HOME_T LT(_SYMBOLS, KC_T)
 #define HOME_D LT(_CLICK, KC_D)
 #define HOME_SLSH LT(_MEDIA, KC_SLSH)
-#define HOME_N LCTL_T(KC_N)
 
 const uint16_t PROGMEM combo_f5[] = {HOME_A, HOME_R, HOME_S, HOME_T, COMBO_END};
 const uint16_t PROGMEM combo_gui_ctl_0[] = {KC_LSFT, HOME_S, HOME_T, COMBO_END};
 const uint16_t PROGMEM combo_boot[] = {KC_W, KC_F, KC_P, KC_B, COMBO_END};
-const uint16_t PROGMEM combo_esc[] = {HOME_R, HOME_S, COMBO_END};
-const uint16_t PROGMEM combo_adhd[] = {KC_H, KC_COMM, KC_DOT, HOME_SLSH, COMBO_END};
-const uint16_t PROGMEM combo_f23[] = {HOME_N, KC_E, KC_I, COMBO_END};
+const uint16_t PROGMEM combo_esc[] = {KC_W, KC_F, COMBO_END};
+const uint16_t PROGMEM combo_adhd[] = {KC_H, KC_COMM, KC_DOT, COMBO_END};
+const uint16_t PROGMEM combo_f23[] = {KC_N, KC_E, KC_I, COMBO_END};
+const uint16_t PROGMEM combo_f23_left[] = {HOME_R, HOME_S, HOME_T, COMBO_END};
 const uint16_t PROGMEM combo_luy[] = {KC_L, KC_U, KC_Y, COMBO_END};
 
 static uint16_t luy_timer = 0;
@@ -54,6 +55,7 @@ enum combo_names {
     COMBO_ESC,
     COMBO_ADHD,
     COMBO_F23,
+    COMBO_F23_LEFT,
     COMBO_LUY,
     COMBO_LENGTH
 };
@@ -66,6 +68,7 @@ combo_t key_combos[] = {
     [COMBO_ESC]       = COMBO(combo_esc, KC_ESC),
     [COMBO_ADHD]      = COMBO(combo_adhd, LCTL(KC_F17)),
     [COMBO_F23]       = COMBO(combo_f23, KC_F23),
+    [COMBO_F23_LEFT]  = COMBO(combo_f23_left, KC_F23),
     [COMBO_LUY]       = COMBO_ACTION(combo_luy),
 };
 
@@ -103,7 +106,7 @@ enum oled_mode {
 };
 
 static uint8_t left_oled_mode = OLED_MODE_STATUS;
-static uint8_t right_oled_mode = OLED_MODE_STATS;
+static uint8_t right_oled_mode = OLED_MODE_RGB;
 
 // Store RGB state before switching to QWERTY
 static uint8_t saved_rgb_mode = 0;
@@ -131,11 +134,12 @@ static struct {
 
 static uint32_t ee_clear_timer = 0;
 static uint32_t keypress_count = 0;
+static uint16_t lock_cad_timer = 0;
+static uint8_t lock_cad_stage = 0;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         keypress_count++;
-        if (keypress_count % 1000 == 0) eeconfig_update_user(keypress_count);
     }
 
     // EEPROM clear: hold bottom corner key for 5 seconds
@@ -163,7 +167,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     }
 
-    if (keycode >= TH_MINS_ENT && keycode <= TH_LOCK_CAD) {
+    if (keycode >= TH_MINS_ENT && keycode < TH_LOCK_CAD) {
         tap_hold_t *th = &tap_holds[keycode - SAFE_RANGE];
         if (record->event.pressed) {
             th->timer = timer_read();
@@ -176,6 +180,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             th->held = false;
             th->timer = 0;
+        }
+        return false;
+    }
+
+    if (keycode == TH_LOCK_CAD) {
+        if (record->event.pressed) {
+            lock_cad_timer = timer_read();
+            lock_cad_stage = 0;
+        } else {
+            lock_cad_timer = 0;
+            lock_cad_stage = 0;
         }
         return false;
     }
@@ -262,6 +277,16 @@ void matrix_scan_user(void) {
         luy_timer = 0;
     }
 
+    if (lock_cad_timer) {
+        if (lock_cad_stage == 0 && timer_elapsed(lock_cad_timer) > 200) {
+            lock_cad_stage = 1;
+            tap_code16(LWIN(KC_L));
+        } else if (lock_cad_stage == 1 && timer_elapsed(lock_cad_timer) > 600) {
+            lock_cad_stage = 2;
+            tap_code16(LCTL(LALT(KC_DEL)));
+        }
+    }
+
     if (ee_clear_timer && timer_elapsed32(ee_clear_timer) > 5000) {
         ee_clear_timer = 0;
         eeconfig_init();
@@ -296,7 +321,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_COLEMAK_DH] = LAYOUT_4x7_right(
     KC_ESC ,KC_DEL , KC_Q  , KC_W  , KC_F  , KC_P  , KC_B  ,                                 KC_J  , KC_L  , KC_U  , KC_Y  ,KC_SCLN,KC_MINS,TH_LOCK_CAD,
-    KC_F18 ,KC_BSPC, HOME_A, HOME_R, HOME_S, HOME_T, KC_G  ,                                 KC_M  , HOME_N, KC_E  , KC_I  , KC_O  ,KC_QUOT,KC_F22 ,
+    KC_F18 ,KC_BSPC, HOME_A, HOME_R, HOME_S, HOME_T, KC_G  ,                                 KC_M  , KC_N, KC_E  , KC_I  , KC_O  ,KC_QUOT,KC_F22 ,
     KC_F19 ,KC_LCTL, Z_ARROWS_SHIFTCTRL, KC_X  , KC_C  , HOME_D, KC_V  ,                                 KC_K  , KC_H  ,KC_COMM, KC_DOT,HOME_SLSH,KC_GRV,KC_F23 ,
     KC_F20 ,KC_F21 ,KC_LWIN,KC_LALT,LCTL(KC_BSPC),                                                                KC_MINS, KC_EQL ,KC_BSLS,TG(_QWERTY),KC_F24 ,
                                             KC_LSFT,KC_LCTL,                                 KC_SPC,
@@ -388,19 +413,18 @@ static void oled_mode_sync_handler(uint8_t in_buflen, const void* in_data, uint8
     memcpy(&keypress_count, &d[1], sizeof(keypress_count));
 }
 
-void eeconfig_init_user(void) {
-    eeconfig_update_user(0);
-}
-
 void keyboard_post_init_user(void) {
-    keypress_count = eeconfig_read_user();
     transaction_register_rpc(OLED_SYNC_ID, oled_mode_sync_handler);
 }
 
 
 void suspend_power_down_user(void) {
     oled_off();
-    eeconfig_update_user(keypress_count);
+}
+
+void suspend_wakeup_init_user(void) {
+    wait_ms(2000);
+    soft_reset_keyboard();
 }
 void housekeeping_task_user(void) {
     if (is_keyboard_master()) {
@@ -557,7 +581,16 @@ bool oled_task_user(void) {
         oled_render_dirty(true);
     }
 
-    if (mode == OLED_MODE_OFF) return false;
+    if (mode == OLED_MODE_OFF) {
+        oled_off();
+        return false;
+    }
+
+    // Turn off OLED after same timeout as RGB
+    if (last_input_activity_elapsed() > RGB_MATRIX_TIMEOUT) {
+        oled_off();
+        return false;
+    }
 
     switch (mode) {
         case OLED_MODE_STATUS:

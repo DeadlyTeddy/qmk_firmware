@@ -31,13 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define COMBO_MUST_HOLD_PER_COMBO
 #define TAPPING_TERM 225
 
-#define DEBUG_MATRIX_SCAN_RATE
-#define DEBUG_ENABLE
-#define DEBUG_MATRIX
-
-
 // Add wakeup routine so the keyboard will wake when plugged into dock
-#define USB_SUSPEND_WAKEUP_DELAY 1000
+#define USB_SUSPEND_WAKEUP_DELAY 2000
 #define NO_USB_STARTUP_CHECK
 
 // WS2812 RGB LED strip input and number of LEDs

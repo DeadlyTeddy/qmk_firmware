@@ -113,7 +113,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SERIAL_USART_RX_PAL_MODE 7
 #define MASTER_LEFT
 #define SPLIT_WPM_ENABLE
-#define SPLIT_OLED_ENABLE
 #define SPLIT_LAYER_STATE_ENABLE
 #define SPLIT_TRANSACTION_IDS_USER OLED_SYNC_ID
 
@@ -141,12 +140,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* PMW33XX Settings */
 #define PMW33XX_CS_PIN A7
 #define PMW33XX_LIFTOFF_DISTANCE 0x03
-#define CHARYBDIS_MINIMUM_DEFAULT_DPI 3000
+#define CHARYBDIS_MINIMUM_DEFAULT_DPI 2000
 #define CHARYBDIS_DEFAULT_DPI_CONFIG_STEP 200
 #define CHARYBDIS_MINIMUM_SNIPING_DPI 400
 #define CHARYBDIS_SNIPING_DPI_CONFIG_STEP 200
 #define POINTING_DEVICE_ROTATION_270
-// #define ROTATIONAL_TRANSFORM_ANGLE 17 // fine tuning is done in keymap.c's TRACKBALL_ANGLE variable
+#define ROTATIONAL_TRANSFORM_ANGLE 17
 #define POINTING_DEVICE_RIGHT
 
 

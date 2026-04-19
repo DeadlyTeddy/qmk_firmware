@@ -15,8 +15,6 @@
  */
 
 #include QMK_KEYBOARD_H
-#include <math.h>
-#include "usb_main.h"
 
 enum custom_layers {
     _COLEMAK_DH,
@@ -421,11 +419,6 @@ void keyboard_post_init_user(void) {
 void suspend_power_down_user(void) {
     oled_off();
 }
-
-void suspend_wakeup_init_user(void) {
-    wait_ms(2000);
-    soft_reset_keyboard();
-}
 void housekeeping_task_user(void) {
     if (is_keyboard_master()) {
         static uint8_t last_mode = 0xFF;
@@ -660,15 +653,12 @@ led_config_t g_led_config = { {
 } };
 #endif
 
-// Trackball mods
-#define TRACKBALL_ANGLE 17 // degrees, positive=CCW, negative=CW
-
+// TODO: Trackball jitter when ball is slightly unseated - hardware issue (sensor at edge of focal range)
+// Tried: deadzone filter, spike detection, rest mode disable, lower DPI, lower liftoff distance (broke tracking)
+// Proposed Fix: physical shim to raise sensor closer to ball or sand down the sensor housing
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    float rad = TRACKBALL_ANGLE * M_PI / 180.0f;
-    int16_t x = mouse_report.x;
-    int16_t y = mouse_report.y;
-    mouse_report.x = (x * cosf(rad) - y * sinf(rad)) * 2.5;
-    mouse_report.y = -(x * sinf(rad) + y * cosf(rad));
+    mouse_report.y = -mouse_report.y;
+    mouse_report.x *= 2.0;
     return mouse_report;
 }
 

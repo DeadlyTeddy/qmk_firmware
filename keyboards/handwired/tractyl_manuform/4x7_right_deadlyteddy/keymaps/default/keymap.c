@@ -653,10 +653,49 @@ led_config_t g_led_config = { {
 } };
 #endif
 
-// TODO: Trackball jitter when ball is slightly unseated - hardware issue (sensor at edge of focal range)
-// Tried: deadzone filter, spike detection, rest mode disable, lower DPI, lower liftoff distance (broke tracking)
-// Proposed Fix: physical shim to raise sensor closer to ball or sand down the sensor housing
+// Trackball jitter suppression - sensor loses optical lock when ball is at edge of focal range
+// Approach: detect impossible acceleration from idle (real input has ramp-up, loss-of-lock doesn't)
+#define IDLE_TIMEOUT_MS 80
+#define SPIKE_SUPPRESS_MS 400
+#define MAX_IDLE_BURST 4
+#define JITTER_COUNT_THRESHOLD 2
+
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    static uint32_t last_real_movement = 0;
+    static uint32_t spike_detected_at  = 0;
+    static uint8_t  post_idle_count    = 0;
+    int16_t magnitude = abs(mouse_report.x) + abs(mouse_report.y);
+
+    // Active suppression window
+    if (spike_detected_at && timer_elapsed32(spike_detected_at) < SPIKE_SUPPRESS_MS) {
+        if (magnitude > MAX_IDLE_BURST) {
+            spike_detected_at = timer_read32();
+        } else if (magnitude == 0) {
+            spike_detected_at = 0;
+            post_idle_count = 0;
+        }
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+        return mouse_report;
+    }
+
+    bool is_idle = timer_elapsed32(last_real_movement) > IDLE_TIMEOUT_MS;
+
+    if (is_idle && magnitude > 0) {
+        post_idle_count++;
+        if (magnitude > MAX_IDLE_BURST * 3 || post_idle_count >= JITTER_COUNT_THRESHOLD) {
+            spike_detected_at = timer_read32();
+            mouse_report.x = 0;
+            mouse_report.y = 0;
+            return mouse_report;
+        }
+    }
+
+    if (magnitude > 0) {
+        last_real_movement = timer_read32();
+        post_idle_count = 0;
+    }
+
     mouse_report.y = -mouse_report.y;
     mouse_report.x *= 2.0;
     return mouse_report;
